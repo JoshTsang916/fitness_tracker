@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健身追蹤器 | CYBER-FIT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-purple: #bf00ff;
+            --neon-yellow: #ffff00;
+            --dark-bg: #0a0a12;
+            --darker-bg: #05050a;
+            --card-bg: #12121f;
+            --border-color: #2a2a40;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--dark-bg);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(0, 243, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 0, 255, 0.05) 0%, transparent 50%),
+                linear-gradient(to bottom, var(--dark-bg), var(--darker-bg));
+            color: #e0e0ff;
+        }
+        
+        h1, h2, h3, .cyber-font {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+        
+        .cyber-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cyber-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+        }
+        
+        .cyber-header {
+            background: linear-gradient(135deg, #12121f, #1a1a2e);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cyber-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-pink), transparent);
+        }
+        
+        .cyber-btn {
+            background: linear-gradient(135deg, #1a1a2e, #12121f);
+            border: 1px solid var(--border-color);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+        }
+        
+        .cyber-btn:hover {
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+            border-color: var(--neon-blue);
+        }
+        
+        .cyber-btn.pink {
+            color: var(--neon-pink);
+            text-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+        }
+        
+        .cyber-btn.pink:hover {
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+            border-color: var(--neon-pink);
+        }
+        
+        .cyber-btn.yellow {
+            color: var(--neon-yellow);
+            text-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+        }
+        
+        .cyber-btn.yellow:hover {
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+            border-color: var(--neon-yellow);
+        }
+        
+        .cyber-input {
+            background-color: rgba(18, 18, 31, 0.8);
+            border: 1px solid var(--border-color);
+            color: #e0e0ff;
+            transition: all 0.3s ease;
+        }
+        
+        .cyber-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+            outline: none;
+        }
+        
+        .cyber-select {
+            background-color: rgba(18, 18, 31, 0.8);
+            border: 1px solid var(--border-color);
+            color: #e0e0ff;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300f3ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 30px;
+        }
+        
+        .cyber-select:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+            outline: none;
+        }
+        
+        .category-tab {
+            transition: all 0.3s ease;
+            position: relative;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+        
+        .category-tab.active {
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+        }
+        
+        .category-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .rm-badge {
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            text-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+        }
+        
+        .cyber-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .cyber-table th {
+            background-color: rgba(10, 10, 18, 0.8);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .cyber-table td {
+            border-bottom: 1px solid rgba(42, 42, 64, 0.5);
+        }
+        
+        .cyber-table tr:hover td {
+            background-color: rgba(0, 243, 255, 0.05);
+        }
+        
+        .cyber-badge {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+        }
+        
+        .cyber-badge.blue {
+            background-color: rgba(0, 243, 255, 0.1);
+            color: var(--neon-blue);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+        }
+        
+        .cyber-badge.green {
+            background-color: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .cyber-badge.purple {
+            background-color: rgba(191, 0, 255, 0.1);
+            color: var(--neon-purple);
+            border: 1px solid rgba(191, 0, 255, 0.3);
+        }
+        
+        .cyber-notification {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(0, 243, 255, 0.2));
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+        
+        .cyber-grid-bg {
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: center center;
+        }
+        
+        .cyber-modal {
+            background-color: rgba(10, 10, 18, 0.95);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+        }
+        
+        .cyber-modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+        }
+        
+        .cyber-modal-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .cyber-modal-footer {
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Glitch effect */
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+        
+        .glitch::before {
+            color: var(--neon-pink);
+            z-index: -1;
+            animation: glitch-animation 0.4s ease-in-out infinite alternate-reverse;
+        }
+        
+        .glitch::after {
+            color: var(--neon-blue);
+            z-index: -2;
+            animation: glitch-animation 0.3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glitch-animation {
+            0% {
+                transform: translateX(-2px) skew(0deg);
+            }
+            100% {
+                transform: translateX(2px) skew(0deg);
+            }
+        }
+        
+        /* Scanline effect */
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 243, 255, 0.02) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+        
+        /* Pulse animation */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 243, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 243, 255, 0);
+            }
+        }
+    </style>
+</head>
+<body class="cyber-grid-bg">
+    <div class="min-h-screen">
+        <!-- 頂部導航 -->
+        <header class="cyber-header shadow-lg relative">
+            <div class="scanline"></div>
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold glitch" data-text="CYBER-FIT">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#bf00ff]">CYBER-FIT</span>
+                        <span class="text-sm ml-2 text-gray-400">v2.0</span>
+                    </h1>
+                    <button id="exportBtn" class="cyber-btn yellow px-4 py-2 rounded flex items-center">
+                        <i class="fas fa-file-export mr-2"></i> 匯出數據
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 左側面板：添加新動作 -->
+                <div class="lg:col-span-1">
+                    <div class="cyber-card rounded-lg p-6 mb-6">
+                        <div class="scanline"></div>
+                        <h2 class="text-xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-plus-circle text-[#00f3ff] mr-2"></i>
+                            <span>添加新動作</span>
+                        </h2>
+                        <form id="addExerciseForm">
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2" for="exerciseName">動作名稱</label>
+                                <input type="text" id="exerciseName" class="cyber-input w-full px-4 py-2 rounded-md focus:outline-none" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2" for="exerciseCategory">動作分類</label>
+                                <select id="exerciseCategory" class="cyber-select w-full px-4 py-2 rounded-md focus:outline-none" required>
+                                    <option value="">選擇分類</option>
+                                    <option value="上肢推">上肢推</option>
+                                    <option value="上肢拉">上肢拉</option>
+                                    <option value="腿">腿</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="cyber-btn w-full py-3 px-4 rounded-md">
+                                <i class="fas fa-save mr-2"></i> 添加動作
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- 記錄訓練 -->
+                    <div class="cyber-card rounded-lg p-6">
+                        <div class="scanline"></div>
+                        <h2 class="text-xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-dumbbell text-[#ff00ff] mr-2"></i>
+                            <span>記錄訓練</span>
+                        </h2>
+                        
+                        <!-- 分類選擇標籤 -->
+                        <div class="flex mb-4 border-b border-[#2a2a40]">
+                            <div class="category-tab cursor-pointer py-2 px-4 active" data-category="上肢推">上肢推</div>
+                            <div class="category-tab cursor-pointer py-2 px-4" data-category="上肢拉">上肢拉</div>
+                            <div class="category-tab cursor-pointer py-2 px-4" data-category="腿">腿</div>
+                        </div>
+                        
+                        <form id="recordWorkoutForm">
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2" for="selectExercise">選擇動作</label>
+                                <select id="selectExercise" class="cyber-select w-full px-4 py-2 rounded-md focus:outline-none" required>
+                                    <option value="">選擇動作</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2" for="weight">重量 (公斤)</label>
+                                <input type="number" id="weight" min="0" step="0.5" class="cyber-input w-full px-4 py-2 rounded-md focus:outline-none" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2" for="reps">每組重複次數</label>
+                                <select id="reps" class="cyber-select w-full px-4 py-2 rounded-md focus:outline-none" required>
+                                    <option value="12">12下</option>
+                                    <option value="10">10下</option>
+                                    <option value="8" selected>8下</option>
+                                    <option value="6">6下</option>
+                                    <option value="5">5下</option>
+                                    <option value="3">3下</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2" for="workoutDate">日期</label>
+                                <input type="date" id="workoutDate" class="cyber-input w-full px-4 py-2 rounded-md focus:outline-none" required>
+                            </div>
+                            <div class="mb-4 p-4 bg-[#0a0a12] rounded-md border border-[#2a2a40]">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">預估1RM:</span>
+                                    <span id="estimated1RM" class="font-bold text-lg text-[#00f3ff]">0 kg</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    1RM = 重量 × (1 + 次數 ÷ 30)
+                                </div>
+                            </div>
+                            <button type="submit" class="cyber-btn pink w-full py-3 px-4 rounded-md">
+                                <i class="fas fa-plus-circle mr-2"></i> 記錄訓練
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 右側面板：動作列表和進度圖表 -->
+                <div class="lg:col-span-2">
+                    <!-- 動作列表 -->
+                    <div class="cyber-card rounded-lg p-6 mb-6">
+                        <div class="scanline"></div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold flex items-center">
+                                <i class="fas fa-list text-[#00f3ff] mr-2"></i>
+                                <span>我的動作列表</span>
+                            </h2>
+                            <div>
+                                <select id="filterCategory" class="cyber-select px-4 py-2 rounded-md focus:outline-none">
+                                    <option value="all">所有分類</option>
+                                    <option value="上肢推">上肢推</option>
+                                    <option value="上肢拉">上肢拉</option>
+                                    <option value="腿">腿</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="cyber-table min-w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="py-3 px-4 text-left">動作名稱</th>
+                                        <th class="py-3 px-4 text-left">分類</th>
+                                        <th class="py-3 px-4 text-left">當前最大1RM</th>
+                                        <th class="py-3 px-4 text-left">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exerciseList">
+                                    <!-- 動作列表將在這裡動態生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 進度圖表 -->
+                    <div class="cyber-card rounded-lg p-6 mb-6">
+                        <div class="scanline"></div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold flex items-center">
+                                <i class="fas fa-chart-line text-[#ff00ff] mr-2"></i>
+                                <span>進度追蹤</span>
+                            </h2>
+                            <div class="flex items-center">
+                                <select id="chartCategory" class="cyber-select px-4 py-2 rounded-md focus:outline-none mr-2">
+                                    <option value="">選擇分類</option>
+                                    <option value="上肢推">上肢推</option>
+                                    <option value="上肢拉">上肢拉</option>
+                                    <option value="腿">腿</option>
+                                </select>
+                                <select id="chartExercise" class="cyber-select px-4 py-2 rounded-md focus:outline-none">
+                                    <option value="">選擇動作</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="currentMaxContainer" class="mb-4 p-4 bg-[#0a0a12] rounded-md border border-[#2a2a40] hidden">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-300">當前最大1RM:</span>
+                                <span id="currentMax1RM" class="font-bold text-lg rm-badge text-white px-3 py-1 rounded-full">0 kg</span>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 訓練記錄 -->
+                    <div class="cyber-card rounded-lg p-6">
+                        <div class="scanline"></div>
+                        <h2 class="text-xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-history text-[#00f3ff] mr-2"></i>
+                            <span>訓練記錄</span>
+                        </h2>
+                        <div class="overflow-x-auto">
+                            <table class="cyber-table min-w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="py-3 px-4 text-left">日期</th>
+                                        <th class="py-3 px-4 text-left">動作</th>
+                                        <th class="py-3 px-4 text-left">重量 (kg)</th>
+                                        <th class="py-3 px-4 text-left">次數</th>
+                                        <th class="py-3 px-4 text-left">預估1RM</th>
+                                        <th class="py-3 px-4 text-left">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workoutRecords">
+                                    <!-- 訓練記錄將在這裡動態生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 匯出數據模態框 -->
+    <div id="exportModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-70"></div>
+        <div class="cyber-modal relative z-10 w-full max-w-2xl rounded-lg p-6">
+            <div class="cyber-modal-header pb-4 mb-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-[#00f3ff]">匯出訓練數據</h3>
+                    <button id="closeExportModal" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="cyber-modal-body">
+                <p class="mb-4">複製以下數據並貼上到 Google Sheets:</p>
+                <div class="bg-[#0a0a12] border border-[#2a2a40] rounded-md p-4 mb-4">
+                    <pre id="exportData" class="text-xs text-gray-300 overflow-auto max-h-60"></pre>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-400">
+                        <i class="fas fa-info-circle mr-1"></i> 提示: 在 Google Sheets 中，選擇「檔案」>「匯入」>「貼上資料」
+                    </p>
+                </div>
+            </div>
+            <div class="cyber-modal-footer pt-4">
+                <div class="flex justify-end">
+                    <button id="copyExportData" class="cyber-btn yellow px-4 py-2 rounded mr-2">
+                        <i class="fas fa-copy mr-1"></i> 複製數據
+                    </button>
+                    <button id="closeExportModalBtn" class="cyber-btn px-4 py-2 rounded">
+                        <i class="fas fa-times mr-1"></i> 關閉
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化數據
+        let exercises = JSON.parse(localStorage.getItem('exercises')) || [];
+        let workouts = JSON.parse(localStorage.getItem('workouts')) || [];
+        let chart = null;
+        let currentCategory = '上肢推'; // 默認選中的分類
+
+        // DOM 載入完成後執行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化頁面
+            updateExerciseList();
+            updateExerciseDropdowns();
+            updateWorkoutRecords();
+            
+            // 設置今天的日期為默認值
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            document.getElementById('workoutDate').value = `${year}-${month}-${day}`;
+            
+            // 添加新動作表單提交
+            document.getElementById('addExerciseForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('exerciseName').value;
+                const category = document.getElementById('exerciseCategory').value;
+                
+                if (name && category) {
+                    const newExercise = {
+                        id: Date.now().toString(),
+                        name: name,
+                        category: category
+                    };
+                    
+                    exercises.push(newExercise);
+                    saveExercises();
+                    updateExerciseList();
+                    updateExerciseDropdowns();
+                    
+                    // 重置表單
+                    document.getElementById('exerciseName').value = '';
+                    document.getElementById('exerciseCategory').value = '';
+                    
+                    showNotification('動作添加成功！');
+                }
+            });
+            
+            // 記錄訓練表單提交
+            document.getElementById('recordWorkoutForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const exerciseId = document.getElementById('selectExercise').value;
+                const weight = parseFloat(document.getElementById('weight').value);
+                const reps = parseInt(document.getElementById('reps').value);
+                const date = document.getElementById('workoutDate').value;
+                
+                if (exerciseId && weight && reps && date) {
+                    // 計算1RM
+                    const oneRM = calculate1RM(weight, reps);
+                    
+                    const newWorkout = {
+                        id: Date.now().toString(),
+                        exerciseId: exerciseId,
+                        weight: weight,
+                        reps: reps,
+                        date: date,
+                        oneRM: oneRM
+                    };
+                    
+                    workouts.push(newWorkout);
+                    saveWorkouts();
+                    updateWorkoutRecords();
+                    updateExerciseList(); // 更新動作列表以顯示最新的1RM
+                    
+                    // 如果當前選中了圖表的動作，更新圖表
+                    const chartExerciseId = document.getElementById('chartExercise').value;
+                    if (chartExerciseId === exerciseId) {
+                        updateProgressChart(exerciseId);
+                        
+                        // 更新當前最大1RM
+                        const maxOneRM = getMaxOneRM(exerciseId);
+                        document.getElementById('currentMax1RM').textContent = `${maxOneRM.toFixed(1)} kg`;
+                    }
+                    
+                    // 重置表單
+                    document.getElementById('weight').value = '';
+                    
+                    showNotification('訓練記錄添加成功！');
+                }
+            });
+            
+            // 過濾動作列表
+            document.getElementById('filterCategory').addEventListener('change', function() {
+                updateExerciseList();
+            });
+            
+            // 分類標籤點擊事件
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有標籤的活動狀態
+                    document.querySelectorAll('.category-tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // 添加當前標籤的活動狀態
+                    this.classList.add('active');
+                    
+                    // 更新當前分類
+                    currentCategory = this.dataset.category;
+                    
+                    // 更新動作下拉選單
+                    updateExerciseDropdownByCategory(currentCategory);
+                });
+            });
+            
+            // 圖表分類選擇
+            document.getElementById('chartCategory').addEventListener('change', function() {
+                const category = this.value;
+                if (category) {
+                    updateChartExerciseDropdown(category);
+                } else {
+                    // 清空動作下拉選單
+                    document.getElementById('chartExercise').innerHTML = '<option value="">選擇動作</option>';
+                    // 隱藏當前最大1RM
+                    document.getElementById('currentMaxContainer').classList.add('hidden');
+                }
+            });
+            
+            // 更新進度圖表
+            document.getElementById('chartExercise').addEventListener('change', function() {
+                const exerciseId = this.value;
+                if (exerciseId) {
+                    updateProgressChart(exerciseId);
+                    // 顯示當前最大1RM
+                    const maxOneRM = getMaxOneRM(exerciseId);
+                    document.getElementById('currentMax1RM').textContent = `${maxOneRM.toFixed(1)} kg`;
+                    document.getElementById('currentMaxContainer').classList.remove('hidden');
+                } else {
+                    // 清空圖表
+                    if (chart) {
+                        chart.destroy();
+                        chart = null;
+                    }
+                    // 隱藏當前最大1RM
+                    document.getElementById('currentMaxContainer').classList.add('hidden');
+                }
+            });
+            
+            // 初始化動作下拉選單
+            updateExerciseDropdownByCategory(currentCategory);
+            
+            // 監聽重量和次數變化，實時更新預估1RM
+            document.getElementById('weight').addEventListener('input', updateEstimated1RM);
+            document.getElementById('reps').addEventListener('change', updateEstimated1RM);
+            
+            // 初始化預估1RM
+            updateEstimated1RM();
+            
+            // 匯出按鈕點擊事件
+            document.getElementById('exportBtn').addEventListener('click', function() {
+                prepareExportData();
+                document.getElementById('exportModal').classList.remove('hidden');
+            });
+            
+            // 關閉匯出模態框
+            document.getElementById('closeExportModal').addEventListener('click', function() {
+                document.getElementById('exportModal').classList.add('hidden');
+            });
+            
+            document.getElementById('closeExportModalBtn').addEventListener('click', function() {
+                document.getElementById('exportModal').classList.add('hidden');
+            });
+            
+            // 複製匯出數據
+            document.getElementById('copyExportData').addEventListener('click', function() {
+                const exportData = document.getElementById('exportData').textContent;
+                navigator.clipboard.writeText(exportData).then(function() {
+                    showNotification('數據已複製到剪貼簿！');
+                }, function() {
+                    showNotification('複製失敗，請手動選擇並複製。', 'error');
+                });
+            });
+            
+            // 設置 Chart.js 全局樣式
+            Chart.defaults.color = '#e0e0ff';
+            Chart.defaults.borderColor = 'rgba(42, 42, 64, 0.3)';
+            Chart.defaults.font.family = "'Rajdhani', sans-serif";
+        });
+
+        // 準備匯出數據
+        function prepareExportData() {
+            // 獲取所有訓練記錄，並按日期排序
+            const sortedWorkouts = [...workouts].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // 創建 CSV 格式的數據
+            let csvData = '日期,動作名稱,分類,重量 (kg),次數,預估1RM (kg)\n';
+            
+            sortedWorkouts.forEach(workout => {
+                const exercise = exercises.find(ex => ex.id === workout.exerciseId);
+                if (!exercise) return;
+                
+                const date = formatDate(workout.date);
+                const name = exercise.name;
+                const category = exercise.category;
+                const weight = workout.weight;
+                const reps = workout.reps;
+                const oneRM = workout.oneRM || calculate1RM(weight, reps);
+                
+                csvData += `${date},${name},${category},${weight},${reps},${oneRM.toFixed(1)}\n`;
+            });
+            
+            document.getElementById('exportData').textContent = csvData;
+        }
+
+        // 更新預估1RM
+        function updateEstimated1RM() {
+            const weight = parseFloat(document.getElementById('weight').value) || 0;
+            const reps = parseInt(document.getElementById('reps').value) || 0;
+            
+            const oneRM = calculate1RM(weight, reps);
+            document.getElementById('estimated1RM').textContent = `${oneRM.toFixed(1)} kg`;
+        }
+
+        // 計算1RM
+        function calculate1RM(weight, reps) {
+            return weight * (1 + reps / 30);
+        }
+
+        // 獲取某個動作的最大1RM
+        function getMaxOneRM(exerciseId) {
+            const exerciseWorkouts = workouts.filter(w => w.exerciseId === exerciseId);
+            if (exerciseWorkouts.length === 0) return 0;
+            
+            return Math.max(...exerciseWorkouts.map(w => w.oneRM || 0));
+        }
+
+        // 更新動作列表
+        function updateExerciseList() {
+            const exerciseList = document.getElementById('exerciseList');
+            const filterCategory = document.getElementById('filterCategory').value;
+            
+            exerciseList.innerHTML = '';
+            
+            const filteredExercises = filterCategory === 'all' 
+                ? exercises 
+                : exercises.filter(ex => ex.category === filterCategory);
+            
+            if (filteredExercises.length === 0) {
+                exerciseList.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="py-4 px-4 text-center text-gray-500">尚無動作，請添加新動作</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredExercises.forEach(exercise => {
+                const maxOneRM = getMaxOneRM(exercise.id);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">${exercise.name}</td>
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">
+                        <span class="cyber-badge px-2 py-1 rounded-md
+                            ${exercise.category === '上肢推' ? 'blue' : 
+                              exercise.category === '上肢拉' ? 'green' : 
+                              'purple'}">
+                            ${exercise.category}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">
+                        ${maxOneRM > 0 ? 
+                            `<span class="px-2 py-1 text-xs font-semibold rm-badge text-white rounded-md">${maxOneRM.toFixed(1)} kg</span>` : 
+                            '<span class="text-gray-500">尚無記錄</span>'}
+                    </td>
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">
+                        <button class="text-[#ff00ff] hover:text-white hover:underline" onclick="deleteExercise('${exercise.id}')">
+                            <i class="fas fa-trash-alt mr-1"></i> 刪除
+                        </button>
+                    </td>
+                `;
+                exerciseList.appendChild(row);
+            });
+        }
+
+        // 根據分類更新動作下拉選單
+        function updateExerciseDropdownByCategory(category) {
+            const selectExercise = document.getElementById('selectExercise');
+            
+            // 清空下拉選單
+            selectExercise.innerHTML = '<option value="">選擇動作</option>';
+            
+            // 過濾該分類的動作
+            const filteredExercises = exercises.filter(ex => ex.category === category);
+            
+            // 添加動作選項
+            filteredExercises.forEach(exercise => {
+                const option = document.createElement('option');
+                option.value = exercise.id;
+                option.textContent = exercise.name;
+                selectExercise.appendChild(option);
+            });
+        }
+
+        // 更新圖表動作下拉選單
+        function updateChartExerciseDropdown(category) {
+            const chartExercise = document.getElementById('chartExercise');
+            
+            // 清空下拉選單
+            chartExercise.innerHTML = '<option value="">選擇動作</option>';
+            
+            // 過濾該分類的動作
+            const filteredExercises = exercises.filter(ex => ex.category === category);
+            
+            // 添加動作選項
+            filteredExercises.forEach(exercise => {
+                const option = document.createElement('option');
+                option.value = exercise.id;
+                option.textContent = exercise.name;
+                chartExercise.appendChild(option);
+            });
+        }
+
+        // 更新所有動作下拉選單
+        function updateExerciseDropdowns() {
+            // 更新當前分類的動作下拉選單
+            updateExerciseDropdownByCategory(currentCategory);
+            
+            // 更新圖表分類下拉選單
+            const chartCategory = document.getElementById('chartCategory');
+            const selectedCategory = chartCategory.value;
+            
+            if (selectedCategory) {
+                updateChartExerciseDropdown(selectedCategory);
+            }
+        }
+
+        // 更新訓練記錄
+        function updateWorkoutRecords() {
+            const workoutRecords = document.getElementById('workoutRecords');
+            
+            workoutRecords.innerHTML = '';
+            
+            if (workouts.length === 0) {
+                workoutRecords.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-4 px-4 text-center text-gray-500">尚無訓練記錄</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // 按日期排序，最新的在前面
+            const sortedWorkouts = [...workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedWorkouts.forEach(workout => {
+                const exercise = exercises.find(ex => ex.id === workout.exerciseId);
+                if (!exercise) return; // 如果找不到對應的動作，跳過
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">${formatDate(workout.date)}</td>
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">
+                        ${exercise.name}
+                        <span class="ml-1 cyber-badge px-2 py-1 rounded-md
+                            ${exercise.category === '上肢推' ? 'blue' : 
+                              exercise.category === '上肢拉' ? 'green' : 
+                              'purple'}">
+                            ${exercise.category}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">${workout.weight}</td>
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">${workout.reps}下</td>
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">
+                        <span class="px-2 py-1 text-xs font-semibold rm-badge text-white rounded-md">
+                            ${workout.oneRM ? workout.oneRM.toFixed(1) : calculate1RM(workout.weight, workout.reps).toFixed(1)} kg
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 border-b border-[#2a2a40]">
+                        <button class="text-[#ff00ff] hover:text-white hover:underline" onclick="deleteWorkout('${workout.id}')">
+                            <i class="fas fa-trash-alt mr-1"></i> 刪除
+                        </button>
+                    </td>
+                `;
+                workoutRecords.appendChild(row);
+            });
+        }
+
+        // 更新進度圖表
+        function updateProgressChart(exerciseId) {
+            const exercise = exercises.find(ex => ex.id === exerciseId);
+            if (!exercise) return;
+            
+            // 獲取該動作的所有訓練記錄
+            const exerciseWorkouts = workouts
+                .filter(w => w.exerciseId === exerciseId)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            if (exerciseWorkouts.length === 0) {
+                if (chart) {
+                    chart.destroy();
+                    chart = null;
+                }
+                return;
+            }
+            
+            // 準備圖表數據
+            const labels = exerciseWorkouts.map(w => formatDate(w.date));
+            const weightData = exerciseWorkouts.map(w => w.weight);
+            const oneRMData = exerciseWorkouts.map(w => w.oneRM || calculate1RM(w.weight, w.reps));
+            
+            // 如果已有圖表，先銷毀
+            if (chart) {
+                chart.destroy();
+            }
+            
+            // 創建新圖表
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '訓練重量 (kg)',
+                            data: weightData,
+                            borderColor: '#00f3ff',
+                            backgroundColor: 'rgba(0, 243, 255, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true,
+                            pointBackgroundColor: '#00f3ff',
+                            pointBorderColor: '#00f3ff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#00f3ff',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: '預估1RM (kg)',
+                            data: oneRMData,
+                            borderColor: '#ff00ff',
+                            backgroundColor: 'rgba(255, 0, 255, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true,
+                            pointBackgroundColor: '#ff00ff',
+                            pointBorderColor: '#ff00ff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#ff00ff',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `${exercise.name} 進度追蹤`,
+                            font: {
+                                size: 16,
+                                family: "'Orbitron', sans-serif"
+                            },
+                            color: '#e0e0ff'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(10, 10, 18, 0.9)',
+                            titleFont: {
+                                family: "'Orbitron', sans-serif"
+                            },
+                            bodyFont: {
+                                family: "'Rajdhani', sans-serif"
+                            },
+                            borderColor: '#2a2a40',
+                            borderWidth: 1
+                        },
+                        legend: {
+                            labels: {
+                                font: {
+                                    family: "'Rajdhani', sans-serif",
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '日期',
+                                font: {
+                                    family: "'Orbitron', sans-serif",
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(42, 42, 64, 0.3)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '重量 (kg)',
+                                font: {
+                                    family: "'Orbitron', sans-serif",
+                                    size: 12
+                                }
+                            },
+                            min: 0,
+                            grid: {
+                                color: 'rgba(42, 42, 64, 0.3)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 刪除動作
+        function deleteExercise(id) {
+            if (confirm('確定要刪除這個動作嗎？相關的訓練記錄也會被刪除。')) {
+                // 刪除動作
+                exercises = exercises.filter(ex => ex.id !== id);
+                saveExercises();
+                
+                // 刪除相關的訓練記錄
+                workouts = workouts.filter(w => w.exerciseId !== id);
+                saveWorkouts();
+                
+                // 更新頁面
+                updateExerciseList();
+                updateExerciseDropdowns();
+                updateWorkoutRecords();
+                
+                // 如果當前圖表顯示的是被刪除的動作，清空圖表
+                const chartExerciseId = document.getElementById('chartExercise').value;
+                if (chartExerciseId === id) {
+                    document.getElementById('chartExercise').value = '';
+                    if (chart) {
+                        chart.destroy();
+                        chart = null;
+                    }
+                    // 隱藏當前最大1RM
+                    document.getElementById('currentMaxContainer').classList.add('hidden');
+                }
+                
+                showNotification('動作已刪除！');
+            }
+        }
+
+        // 刪除訓練記錄
+        function deleteWorkout(id) {
+            if (confirm('確定要刪除這條訓練記錄嗎？')) {
+                // 獲取要刪除的記錄，以便後續更新圖表
+                const workout = workouts.find(w => w.id === id);
+                
+                // 刪除記錄
+                workouts = workouts.filter(w => w.id !== id);
+                saveWorkouts();
+                
+                // 更新頁面
+                updateWorkoutRecords();
+                updateExerciseList(); // 更新動作列表以顯示最新的1RM
+                
+                // 如果當前圖表顯示的是被刪除記錄的動作，更新圖表
+                if (workout) {
+                    const chartExerciseId = document.getElementById('chartExercise').value;
+                    if (chartExerciseId === workout.exerciseId) {
+                        updateProgressChart(chartExerciseId);
+                        
+                        // 更新當前最大1RM
+                        const maxOneRM = getMaxOneRM(chartExerciseId);
+                        document.getElementById('currentMax1RM').textContent = `${maxOneRM.toFixed(1)} kg`;
+                    }
+                }
+                
+                showNotification('訓練記錄已刪除！');
+            }
+        }
+
+        // 保存動作到本地存儲
+        function saveExercises() {
+            localStorage.setItem('exercises', JSON.stringify(exercises));
+        }
+
+        // 保存訓練記錄到本地存儲
+        function saveWorkouts() {
+            localStorage.setItem('workouts', JSON.stringify(workouts));
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+        }
+
+        // 顯示通知
+        function showNotification(message, type = 'success') {
+            // 創建通知元素
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 ease-in-out opacity-0 z-50 ${type === 'success' ? 'cyber-notification' : 'bg-red-900 border border-red-700'}`;
+            
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle text-[#00f3ff]' : 'fa-exclamation-circle text-red-400'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // 添加到頁面
+            document.body.appendChild(notification);
+            
+            // 淡入效果
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 10);
+            
+            // 3秒後淡出並移除
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'962052f5922249fb',t:'MTc1Mjk5MjEyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
